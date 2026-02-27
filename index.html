@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrición - Soltar las Heridas</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Three.js para el corazón 3D -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* Estilos Globales y Animaciones */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, .font-serif {
+      font-family: 'Playfair Display', serif;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .bg-animated-gradient {
+      background: linear-gradient(-45deg, #130024, #2d0a31, #0a1128, #2a0845, #1f092e);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+    }
+    
+    .glass-panel {
+      background: rgba(20, 10, 30, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    
+    @keyframes floatUpAndGlow {
+      0% { transform: translateY(0) scale(1); opacity: 1; color: #d6d3d1; text-shadow: 0 0 0px transparent; }
+      50% { color: #f472b6; text-shadow: 0 0 15px rgba(244,114,182,0.8); }
+      100% { transform: translateY(-100px) scale(1.3); opacity: 0; color: #fbbf24; text-shadow: 0 0 20px rgba(251,191,36,0.8); }
+    }
+    
+    .animate-float-glowing {
+      animation: floatUpAndGlow 2.5s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+    }
+    
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: float 10s infinite ease-in-out alternate;
+      z-index: 0;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px) translateX(0px) scale(1); }
+      100% { transform: translateY(-50px) translateX(30px) scale(1.2); }
+    }
+
+    /* Ocultar elementos temporalmente para transiciones */
+    .hidden-state {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9);
+    }
+    
+    /* Utilidades de transición suave */
+    .smooth-transition {
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-animated-gradient text-stone-200 selection:bg-rose-500 selection:text-white relative overflow-x-hidden">
+
+  <!-- Fondo Animado -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="orb bg-purple-600/20 w-[40vw] h-[40vw] top-[-10%] left-[-10%]" style="animation-delay: 0s"></div>
+    <div class="orb bg-indigo-600/20 w-[35vw] h-[35vw] bottom-[-10%] right-[-5%]" style="animation-delay: -3s"></div>
+    <div class="orb bg-rose-600/10 w-[30vw] h-[30vw] top-[40%] left-[60%]" style="animation-delay: -5s"></div>
+    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay"></div>
+  </div>
+
+  <div class="relative z-10">
+    <!-- Header -->
+    <header class="py-14 text-center px-4 border-b border-white/5 bg-black/20 backdrop-blur-sm">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-purple-500/30 mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        <p class="text-purple-300 font-medium tracking-widest uppercase text-[10px] md:text-xs">Tiempo de Gracia y Cuaresma</p>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-serif mb-6 text-transparent bg-clip-text bg-gradient-to-r from-stone-100 via-purple-200 to-rose-200 drop-shadow-lg">
+        Soltar las Heridas
+      </h1>
+      <p class="text-stone-300 max-w-xl mx-auto text-sm md:text-base leading-relaxed font-light">
+        Un espacio inmersivo para vaciar el corazón de aquello que lo endurece. Deja que los colores de la misericordia transformen tu interior para recibir el abrazo del perdón.
+      </p>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 py-16 space-y-28 pb-32">
+      
+      <!-- 1. Transformación 3D del Corazón -->
+      <section class="flex flex-col items-center justify-center glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden group transition-all duration-500 hover:shadow-purple-900/20 hover:shadow-2xl">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent pointer-events-none"></div>
+
+        <div class="text-center mb-8 z-10">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-900/30 border border-purple-500/30 mb-4 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="m12 13-1-1 2-2-3-3 2-2"/></svg>
+          </div>
+          <h2 class="text-3xl font-serif mb-2 text-white drop-shadow-md">Vaciando el Corazón</h2>
+          <p class="text-purple-200/70 text-sm max-w-sm mx-auto font-light">
+            Toca repetidamente el corazón de piedra para liberar el peso de tus faltas. Dale espacio a los colores de la gracia.
+          </p>
+        </div>
+
+        <div id="heart-interaction-area" class="relative w-full h-72 md:h-96 cursor-pointer select-none touch-manipulation overflow-visible">
+          <!-- Contenedor Three.js -->
+          <div id="three-container" class="absolute inset-0 z-10"></div>
+          
+          <!-- Contenedor para Palabras Flotantes -->
+          <div id="floating-words-container" class="absolute inset-0 z-20 pointer-events-none overflow-visible"></div>
+
+          <!-- Halo luminoso final -->
+          <div id="heart-halo" class="absolute inset-0 bg-rose-500/30 blur-[80px] rounded-full transition-all duration-1000 pointer-events-none opacity-0 scale-50"></div>
+        </div>
+
+        <div class="mt-8 text-center h-16 flex items-center justify-center w-full">
+          <!-- Estado en progreso -->
+          <div id="heart-progress-container" class="flex flex-col items-center gap-2 w-full transition-opacity duration-500">
+            <p id="heart-progress-text" class="text-purple-300/60 text-xs font-bold uppercase tracking-[0.3em]">0 / 10 liberadas</p>
+            <div class="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+              <div id="heart-progress-bar" class="h-full bg-gradient-to-r from-purple-500 to-rose-500 transition-all duration-300 w-0"></div>
+            </div>
+          </div>
+          <!-- Estado completado -->
+          <div id="heart-success-container" class="absolute hidden-state bg-rose-500/10 border border-rose-500/30 px-6 py-3 rounded-full backdrop-blur-md smooth-transition">
+            <p class="text-rose-300 font-serif text-lg tracking-wide">"Os daré un corazón nuevo y pondré un espíritu nuevo dentro de vosotros; quitaré de vuestra carne el corazón de piedra y os daré un corazón de carne" <span class="text-rose-400/50 text-sm ml-2">(Ez 36, 26)</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Reflexión de Ceniza Colorida -->
+      <section class="glass-panel rounded-3xl p-1 relative overflow-hidden shadow-2xl">
+        <div class="relative w-full h-[400px] rounded-[22px] overflow-hidden bg-gradient-to-br from-amber-400 via-rose-500 to-purple-600 flex items-center justify-center">
+          
+          <!-- Fondo luminoso y creativo que se revela -->
+          <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30 mix-blend-overlay"></div>
+          <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 to-transparent"></div>
+          
+          <div class="relative z-0 p-8 max-w-lg text-center transform transition-transform duration-1000 hover:scale-105">
+            <div class="inline-block p-3 bg-white/10 rounded-full backdrop-blur-md border border-white/20 mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
+            </div>
+            <h3 class="text-3xl font-serif text-white mb-4 drop-shadow-md">Siempre serás Hijo Amado</h3>
+            <p class="text-xl font-serif leading-relaxed text-white/90 drop-shadow-lg">
+              "No eres tus caídas, ni el polvo que quedó en el camino. Eres el hijo amado que el Padre levanta con ternura, limpia con paciencia y espera siempre con los brazos abiertos."
+            </p>
+          </div>
+
+          <!-- Capa de Ceniza interactiva -->
+          <canvas id="ash-canvas" class="absolute inset-0 w-full h-full z-10 cursor-crosshair transition-all duration-[1.5s] ease-in-out"></canvas>
+        </div>
+      </section>
+
+      <!-- 3. Salmo Interactivo Colorido -->
+      <section class="pt-10">
+        <div class="text-center mb-12">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/30 mb-4 text-rose-300">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 2.9 7 2.9s-2.29 6.16-2.29 6.16c-1.14.93-1.71 2.03-1.71 3.19C3 14.47 4.8 16.3 7 16.3Z"/><path d="M16 19.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S16 5.9 16 5.9s-2.29 6.16-2.29 6.16c-1.14.93-1.71 2.03-1.71 3.19C12 17.47 13.8 19.3 16 19.3Z"/></svg>
+          </div>
+          <h2 class="text-3xl font-serif mb-3 text-white">El Grito de Arrepentimiento</h2>
+          <p class="text-purple-200/70 text-base max-w-lg mx-auto font-light">
+            Construye la oración del Salmo 50. Selecciona una palabra coloreada y luego toca el espacio donde pertenece para dar forma a tu plegaria.
+          </p>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6 md:p-12 shadow-2xl border-t border-l border-white/10">
+          
+          <!-- Banco de Palabras -->
+          <div class="mb-12 pb-8 border-b border-white/10 min-h-[100px]">
+            <div id="word-bank" class="flex flex-wrap gap-4 justify-center">
+              <!-- Las palabras se insertarán aquí dinámicamente -->
+            </div>
+          </div>
+
+          <!-- Texto del Salmo -->
+          <div id="psalm-text-container" class="text-xl md:text-3xl font-serif leading-[2.5] text-white/80 text-center max-w-3xl mx-auto">
+            <!-- El salmo con los espacios se generará dinámicamente -->
+          </div>
+
+          <!-- Mensaje de Éxito y Confesión -->
+          <div id="psalm-success" class="mt-12 overflow-hidden transition-all duration-[1.5s] ease-[cubic-bezier(0.2,1,0.3,1)] max-h-0 opacity-0 pointer-events-none">
+            <div class="relative overflow-hidden rounded-2xl p-8 md:p-10 text-center border border-purple-400/30">
+              <!-- Fondo radiante para el éxito -->
+              <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-rose-900"></div>
+              <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-40 mix-blend-color-dodge"></div>
+              
+              <div class="relative z-10 flex flex-col items-center">
+                <div class="w-16 h-16 bg-gradient-to-tr from-rose-400 to-purple-500 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(244,114,182,0.8)]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 6 9 17l-5-5"/></svg>
+                </div>
+                
+                <h4 class="text-white font-serif text-3xl mb-4 drop-shadow-md">El corazón está listo</h4>
+                <p class="text-purple-100 text-lg mb-8 max-w-2xl mx-auto leading-relaxed font-light drop-shadow-sm">
+                  Has vaciado el orgullo y construido tu plegaria. No te quedes solo con el dolor del pecado; la fiesta del perdón te espera. 
+                  <br><br>
+                  <span class="font-medium text-white bg-white/10 px-4 py-2 rounded-lg inline-block">
+                    Acércate al Sacramento de la Reconciliación.
+                  </span> 
+                  <br><br>
+                  Allí es donde la ceniza se vuelve luz pura y las heridas sanan definitivamente.
+                </p>
+                
+                <button id="reset-psalm-btn" class="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full transition-all flex items-center gap-2 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:-translate-y-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  Volver a orar
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Lógica de la Aplicación -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initThreeHeart();
+      initAshReflection();
+      initInteractivePsalm();
+    });
+
+    // ----------------------------------------------------------------------
+    // 1. Transformación 3D del Corazón (Vanilla JS + Three.js)
+    // ----------------------------------------------------------------------
+    function initThreeHeart() {
+      const container = document.getElementById('three-container');
+      const interactionArea = document.getElementById('heart-interaction-area');
+      const wordsContainer = document.getElementById('floating-words-container');
+      const progressBar = document.getElementById('heart-progress-bar');
+      const progressText = document.getElementById('heart-progress-text');
+      const progressContainer = document.getElementById('heart-progress-container');
+      const successContainer = document.getElementById('heart-success-container');
+      const halo = document.getElementById('heart-halo');
+
+      const SINS_LIST = ["Egoísmo", "Soberbia", "Envidia", "Rencor", "Ira", "Pereza", "Avaricia", "Indiferencia", "Mentira", "Orgullo"];
+      let sinsReleased = 0;
+      let isComplete = false;
+
+      // Variables de Three.js
+      let scene, camera, renderer, heartMesh, heartMaterial, pointLight;
+
+      function init3D() {
+        const width = interactionArea.clientWidth;
+        const height = interactionArea.clientHeight;
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+        camera.position.z = 55;
+
+        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Crear forma de corazón
+        const x = 0, y = 0;
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(x + 5, y + 5);
+        heartShape.bezierCurveTo(x + 5, y + 5, x + 4, y, x, y);
+        heartShape.bezierCurveTo(x - 6, y, x - 6, y + 7, x - 6, y + 7);
+        heartShape.bezierCurveTo(x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19);
+        heartShape.bezierCurveTo(x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7);
+        heartShape.bezierCurveTo(x + 16, y + 7, x + 16, y, x + 10, y);
+        heartShape.bezierCurveTo(x + 7, y, x + 5, y + 5, x + 5, y + 5);
+
+        const extrudeSettings = { depth: 5, bevelEnabled: true, bevelSegments: 4, steps: 2, bevelSize: 1.5, bevelThickness: 1.5 };
+        const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+        
+        geometry.computeBoundingBox();
+        const centerOffset = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        const yOffset = -0.5 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
+        geometry.translate(centerOffset, yOffset, -2.5);
+
+        // Material inicial (Piedra oscura mágica)
+        heartMaterial = new THREE.MeshStandardMaterial({ 
+          color: 0x2a2a35, 
+          roughness: 0.8,
+          metalness: 0.3,
+          envMapIntensity: 1
+        });
+
+        heartMesh = new THREE.Mesh(geometry, heartMaterial);
+        heartMesh.rotation.x = Math.PI; 
+        scene.add(heartMesh);
+
+        // Iluminación
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+        
+        const dirLight = new THREE.DirectionalLight(0x8b5cf6, 2);
+        dirLight.position.set(10, 20, 20);
+        scene.add(dirLight);
+
+        const dirLight2 = new THREE.DirectionalLight(0x3b82f6, 1);
+        dirLight2.position.set(-10, -20, 20);
+        scene.add(dirLight2);
+
+        pointLight = new THREE.PointLight(0xffffff, 0, 50);
+        pointLight.position.set(0, 0, 15);
+        scene.add(pointLight);
+
+        // Animación de bucle
+        function animate() {
+          requestAnimationFrame(animate);
+          
+          heartMesh.rotation.y += 0.008;
+          heartMesh.rotation.z = Math.sin(Date.now() * 0.001) * 0.05;
+          
+          if (heartMaterial.color.r > 0.6) {
+            const scale = 1 + Math.sin(Date.now() * 0.006) * 0.04;
+            heartMesh.scale.set(scale, scale, scale);
+          }
+          
+          renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive
+        window.addEventListener('resize', () => {
+          if(!interactionArea) return;
+          const w = interactionArea.clientWidth;
+          const h = interactionArea.clientHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        });
+      }
+
+      function handleInteract(e) {
+        if (sinsReleased >= SINS_LIST.length) return;
+        e.preventDefault(); // previene comportamientos raros en móvil
+
+        sinsReleased++;
+        isComplete = sinsReleased >= SINS_LIST.length;
+
+        // Actualizar UI Progress
+        progressText.innerText = `${sinsReleased} / ${SINS_LIST.length} liberadas`;
+        progressBar.style.width = `${(sinsReleased / SINS_LIST.length) * 100}%`;
+
+        // Transición Color 3D
+        const targetColor = new THREE.Color(0xff2a5f);
+        const progress = sinsReleased / SINS_LIST.length;
+        heartMaterial.color.lerp(targetColor, progress);
+        heartMaterial.roughness = Math.max(0.1, 0.8 - progress);
+        heartMaterial.metalness = Math.min(0.8, 0.3 + progress * 0.5);
+
+        pointLight.color.setHex(0xff5577);
+        pointLight.intensity = progress * 4;
+
+        // Animar Palabra
+        const rect = interactionArea.getBoundingClientRect();
+        let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        
+        // Si no hay coordenadas (ej click programado), centrar
+        if(!clientX) clientX = rect.left + rect.width / 2;
+        if(!clientY) clientY = rect.top + rect.height / 2;
+
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        const wordEl = document.createElement('div');
+        wordEl.className = 'absolute z-20 font-serif font-medium text-xl md:text-2xl pointer-events-none animate-float-glowing tracking-wide';
+        wordEl.innerText = SINS_LIST[sinsReleased - 1];
+        wordEl.style.left = `${x + (Math.random() * 60 - 30)}px`;
+        wordEl.style.top = `${y + (Math.random() * 20 - 10)}px`;
+        
+        wordsContainer.appendChild(wordEl);
+
+        setTimeout(() => {
+          if(wordEl.parentNode) wordEl.parentNode.removeChild(wordEl);
+        }, 2500);
+
+        // Terminar estado
+        if (isComplete) {
+          halo.classList.remove('opacity-0', 'scale-50');
+          halo.classList.add('opacity-100', 'scale-150', 'animate-pulse');
+          
+          progressContainer.classList.add('hidden-state');
+          setTimeout(() => {
+            progressContainer.style.display = 'none';
+            successContainer.classList.remove('hidden-state');
+          }, 300);
+        }
+      }
+
+      // Eventos
+      interactionArea.addEventListener('click', handleInteract);
+      interactionArea.addEventListener('touchstart', handleInteract, {passive: false});
+
+      // Inicializar
+      init3D();
+    }
+
+    // ----------------------------------------------------------------------
+    // 2. Reflexión de Ceniza Colorida (Vanilla JS + Canvas)
+    // ----------------------------------------------------------------------
+    function initAshReflection() {
+      const canvas = document.getElementById('ash-canvas');
+      const ctx = canvas.getContext('2d');
+      let cleared = false;
+      let isDrawing = false;
+
+      function resizeAndFill() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        fillAsh();
+      }
+
+      function fillAsh() {
+        if (cleared) return;
+        ctx.globalCompositeOperation = 'source-over';
+        
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, '#1c1917');
+        gradient.addColorStop(1, '#292524');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        for (let i = 0; i < 5000; i++) {
+          ctx.fillStyle = Math.random() > 0.5 ? '#0c0a09' : '#44403c';
+          ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 3, Math.random() * 3);
+        }
+        
+        ctx.fillStyle = '#a8a29e';
+        ctx.font = 'italic 18px Playfair Display, serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Desliza para limpiar la ceniza', canvas.width / 2, canvas.height / 2);
+      }
+
+      function erase(x, y) {
+        if (cleared) return;
+        ctx.globalCompositeOperation = 'destination-out';
+        
+        const radGrad = ctx.createRadialGradient(x, y, 10, x, y, 60);
+        radGrad.addColorStop(0, 'rgba(0,0,0,1)');
+        radGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        
+        ctx.fillStyle = radGrad;
+        ctx.beginPath();
+        ctx.arc(x, y, 60, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function getCoordinates(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        return {
+          x: clientX - rect.left,
+          y: clientY - rect.top
+        };
+      }
+
+      function handleStart(e) {
+        isDrawing = true;
+        const coords = getCoordinates(e);
+        erase(coords.x, coords.y);
+      }
+
+      function handleMove(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const coords = getCoordinates(e);
+        erase(coords.x, coords.y);
+        
+        // Revisar si ya limpió suficiente porcentaje de la pantalla
+        if (Math.random() < 0.05) { 
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let transparent = 0;
+          for (let i = 3; i < imageData.data.length; i += 800) { 
+            if (imageData.data[i] < 50) transparent++;
+          }
+          if (transparent > imageData.data.length / 800 * 0.35) {
+            cleared = true;
+            canvas.classList.add('opacity-0', 'scale-110', 'pointer-events-none');
+            canvas.classList.remove('opacity-100', 'scale-100');
+          }
+        }
+      }
+
+      function handleEnd() { isDrawing = false; }
+
+      window.addEventListener('resize', resizeAndFill);
+      canvas.addEventListener('mousedown', handleStart);
+      canvas.addEventListener('mousemove', handleMove);
+      canvas.addEventListener('mouseup', handleEnd);
+      canvas.addEventListener('mouseleave', handleEnd);
+      canvas.addEventListener('touchstart', handleStart, { passive: false });
+      canvas.addEventListener('touchmove', handleMove, { passive: false });
+      canvas.addEventListener('touchend', handleEnd);
+
+      // Timeout inicial para asegurar que el DOM calculó los tamaños
+      setTimeout(resizeAndFill, 100);
+    }
+
+    // ----------------------------------------------------------------------
+    // 3. Salmo Interactivo Colorido (Vanilla JS)
+    // ----------------------------------------------------------------------
+    function initInteractivePsalm() {
+      const PSALM_CORRECT_WORDS = ["Misericordia", "bondad", "compasión", "culpa", "delito", "pecado"];
+      let availableWords = [];
+      let slots = [null, null, null, null, null, null];
+      let selectedWord = null;
+      let isSuccess = false;
+
+      const bankContainer = document.getElementById('word-bank');
+      const textContainer = document.getElementById('psalm-text-container');
+      const successMessage = document.getElementById('psalm-success');
+      const resetBtn = document.getElementById('reset-psalm-btn');
+
+      // Funciones de Lógica
+      function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex > 0) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+          [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+      }
+
+      function init() {
+        availableWords = shuffle([...PSALM_CORRECT_WORDS]);
+        slots = [null, null, null, null, null, null];
+        selectedWord = null;
+        isSuccess = false;
+        
+        successMessage.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
+        successMessage.classList.remove('max-h-[600px]', 'opacity-100', 'pointer-events-auto');
+        
+        render();
+      }
+
+      function checkSuccess() {
+        const allFilled = slots.every(val => val !== null);
+        if (allFilled) {
+          isSuccess = slots.every((word, idx) => word === PSALM_CORRECT_WORDS[idx]);
+          if(isSuccess) {
+            successMessage.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
+            successMessage.classList.add('max-h-[600px]', 'opacity-100', 'pointer-events-auto');
+          }
+        } else {
+          isSuccess = false;
+        }
+      }
+
+      function handleWordClick(word) {
+        selectedWord = (selectedWord === word) ? null : word;
+        render();
+      }
+
+      function handleSlotClick(index) {
+        if (selectedWord) {
+          const prevWord = slots[index];
+          slots[index] = selectedWord;
+          availableWords = availableWords.filter(w => w !== selectedWord);
+          if (prevWord) availableWords.push(prevWord);
+          selectedWord = null;
+        } else if (slots[index]) {
+          availableWords.push(slots[index]);
+          slots[index] = null;
+        }
+        checkSuccess();
+        render();
+      }
+
+      // Exponer funciones al scope global para que los onclick de HTML funcionen
+      window.psalmHandleWordClick = handleWordClick;
+      window.psalmHandleSlotClick = handleSlotClick;
+
+      // Función de Renderizado UI
+      function render() {
+        // Renderizar Banco
+        let bankHTML = '';
+        availableWords.forEach((word) => {
+          const isSelected = selectedWord === word;
+          const classes = isSelected 
+            ? 'bg-gradient-to-r from-purple-500 to-rose-500 text-white scale-110 shadow-[0_0_20px_rgba(244,114,182,0.6)] border-none'
+            : 'bg-white/5 border border-white/10 text-stone-300 hover:bg-white/10 hover:-translate-y-1 hover:shadow-lg hover:text-white';
+          
+          bankHTML += `<button onclick="psalmHandleWordClick('${word}')" class="px-5 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 ${classes}">${word}</button>`;
+        });
+
+        if (availableWords.length === 0 && !isSuccess) {
+          bankHTML += '<p class="text-purple-300/50 text-sm italic py-2 animate-pulse w-full text-center">Revisa el texto. Si hay un error, toca una palabra para devolverla.</p>';
+        }
+        bankContainer.innerHTML = bankHTML;
+
+        // Renderizar Salmo
+        const getSlotHTML = (index) => {
+          const word = slots[index];
+          const isSelectedTarget = selectedWord !== null && !word;
+          const isCorrect = isSuccess && word === PSALM_CORRECT_WORDS[index];
+          
+          let classes = 'inline-block min-w-[120px] mx-1 px-4 py-1.5 rounded-lg border-b-2 font-medium text-center cursor-pointer transition-all duration-300 ';
+          
+          if (isCorrect) {
+            classes += 'bg-emerald-500/20 border-emerald-400 text-emerald-200 shadow-[0_0_15px_rgba(52,211,153,0.3)]';
+          } else if (word) {
+            classes += 'bg-white/10 border-purple-400 text-white hover:bg-white/20';
+          } else if (isSelectedTarget) {
+            classes += 'bg-purple-500/20 border-purple-400 animate-pulse border-dashed shadow-[0_0_10px_rgba(168,85,247,0.5)]';
+          } else {
+            classes += 'bg-black/20 border-white/20 text-white/30 border-dashed hover:bg-white/5';
+          }
+
+          return `<span onclick="psalmHandleSlotClick(${index})" class="${classes}">${word || "____"}</span>`;
+        };
+
+        textContainer.innerHTML = `
+          "¡ ${getSlotHTML(0)} , Dios mío, por tu ${getSlotHTML(1)} ,<br class="hidden md:block" />
+          por tu inmensa ${getSlotHTML(2)} borra mi ${getSlotHTML(3)} !<br />
+          Lava del todo mi ${getSlotHTML(4)} ,<br class="hidden md:block" />
+          limpia mi ${getSlotHTML(5)} ."
+        `;
+      }
+
+      resetBtn.addEventListener('click', init);
+      init();
+    }
+
+  </script>
+</body>
+</html>
